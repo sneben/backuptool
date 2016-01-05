@@ -1,0 +1,92 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""
+Usage:
+  backuptool create
+  backuptool restore
+  backuptool rotate
+  backuptool delete <name>
+  backuptool list
+
+All necessary settings will be read from configuration in /etc/backuptool
+
+Options:
+  -h --help    Show this
+
+"""
+
+from __future__ import print_function
+
+import os
+import sys
+import shutil
+import tempfile
+import yamlreader
+import subprocess
+
+from docopt import docopt
+from backuptool import FileBackup, FTPBackup, S3Backup, CallingUserError
+
+CONFIG_DIR = '/etc/backuptool/'
+
+
+def run_local_puppet(manifest):
+    """Run the local host config puppet"""
+    cmd = 'puppet apply {0}'.format(manifest)
+    return subprocess.check_output(cmd, shell=True)
+
+
+def print_line(character='–'):
+    """Print a line of 'character' which fits the actual window size"""
+    _, columns = os.popen('stty size', 'r').read().split()
+    for _ in range(int(columns)):
+        print(character, end='')
+
+
+def main():
+    """Executed, when script is called directly"""
+    arguments = docopt(__doc__)
+    backup_config = yamlreader.yaml_load(CONFIG_DIR, {})['backup']
+    backups = backup_config.keys()
+    if arguments['list']:
+        print('Available backups for this instance')
+        print_line()
+    for entry in backups:
+        config = backup_config[entry]
+        upload_protocol = config['target'].split('://')[0]
+        workdir = tempfile.mkdtemp(prefix='backuptool-')
+        if upload_protocol == 's3':
+            my_backup = S3Backup(entry, config=config, workdir=workdir)
+        elif upload_protocol == 'ftp':
+            my_backup = FTPBackup(entry, config=config, workdir=workdir)
+        elif upload_protocol == 'file':
+            my_backup = FileBackup(entry, config=config, workdir=workdir)
+        else:
+            message = "Target type '{0}' is not supported"
+            message = message.format(upload_protocol)
+            print(message)
+        try:
+            if arguments['create']:
+                my_backup.create()
+            elif arguments['restore']:
+                my_backup.restore()
+                # Be sure the imported backup files have correct permissions,
+                # services are restarted to adapt a possible new config, ...
+                if 'puppet-manifest' in config:
+                    run_local_puppet(config['puppet-manifest'])
+            elif arguments['rotate']:
+                my_backup.rotate()
+            elif arguments['delete']:
+                my_backup.delete(arguments['<name>'])
+            elif arguments['list']:
+                my_backup.list()
+        except CallingUserError as error:
+            print(error)
+            sys.exit(1)
+        finally:
+            shutil.rmtree(workdir)
+
+
+if __name__ == '__main__':
+    main()

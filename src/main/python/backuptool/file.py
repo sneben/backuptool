@@ -1,0 +1,76 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+from __future__ import print_function
+
+import os
+import time
+import shutil
+
+from .backup import Backup
+
+
+class FileBackup(Backup):
+    """Class for creating backups on file targets"""
+
+    def __init__(self, *args, **kwargs):
+        super(FileBackup, self).__init__(*args, **kwargs)
+        self.backup_dir = '/{0}'.format(self.config['target'].split('//')[1])
+        self.existing_backup_files = []
+        self.set_existing_backups()
+
+    def set_existing_backups(self):
+        """Set a list of all existing backups entries"""
+        if not os.path.isdir(self.backup_dir):
+            raise NameError('configured backup directory does not exist')
+        self.existing_backup_files = os.listdir(self.backup_dir)
+        self.existing_backup_files.sort()
+
+    def upload(self):
+        """Copy the created backup file to the configured target"""
+        if self.encrypt:
+            filename_abs = '{0}.gpg'.format(self.filename_abs)
+        else:
+            filename_abs = self.filename_abs
+        shutil.copy(filename_abs, '/{0}/'.format(self.backup_dir))
+
+    def list(self):
+        """List all available file backups"""
+        print('{0} (FILE):'.format(self.name))
+        for entry in self.existing_backup_files:
+            file_path = '{0}/{1}'.format(self.backup_dir, entry)
+            date = time.ctime(os.path.getctime(file_path))
+            size_value = float(os.path.getsize(file_path)) / 1024 / 1024
+            size = '{0:.2f}MB'.format(size_value)
+            name = entry
+            print('  {0:<53}{1:<10}{2}'.format(name, size, date))
+        print('')
+
+    def rotate(self):
+        """Only keep the given amount of backup files and delete the rest"""
+        files = self.existing_backup_files
+        files.reverse()
+        files_to_be_deleted = files[self.rotation_num:]
+        for backup_file in files_to_be_deleted:
+            self.rmfile('{0}/{1}'.format(self.backup_dir, backup_file))
+
+    def delete(self, name):
+        """Delete the given backup file"""
+        self.rmfile('{0}/{1}'.format(self.backup_dir, name))
+
+    def download(self):
+        """Copy the newest backup to the temporary directory"""
+        if not self.existing_backup_files:
+            return False
+        newest_backup_file = self.existing_backup_files[-1]
+        file_target = '{0}/{1}'.format(self.workdir, newest_backup_file)
+        file_source = '{0}/{1}'.format(self.backup_dir, newest_backup_file)
+        shutil.copy(file_source, file_target)
+        if newest_backup_file.split('.')[-1] == 'gpg':
+            self.encrypt = True
+            self.filename = '.'.join(newest_backup_file.split('.')[:-1])
+        else:
+            self.encrypt = False
+            self.filename = newest_backup_file
+        self.filename_abs = "{0}/{1}".format(self.workdir, self.filename)
+        return True
