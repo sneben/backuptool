@@ -1,0 +1,5 @@
+venv
+target
+*.pyc
+*.pyo
+.coverage
