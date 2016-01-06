@@ -137,6 +137,16 @@ The needed configuration paramters are:
     aws-secret-access-key: wJalrXUtnFEMI/K7MDENG/bPxRfiCYzEXAMPLEKEY
     target: s3://my-backup-bucket
 
+Rotation
+--------
+The backup filenames have a timestamp in the name (see section
+*How the script operates*). If e.g. the three freshest backups should be
+kept, set the ``rotate`` option to 3. All older backups get deleted on upload.
+
+.. code-block:: yaml
+
+    rotate: 3
+
 Encryption
 ----------
 Optionally it is possible to encrypt the generated backup ``tar.gz`` with
