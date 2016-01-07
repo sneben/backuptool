@@ -3,16 +3,17 @@
 
 """
 Usage:
-  backuptool create
-  backuptool restore
-  backuptool rotate
-  backuptool delete <name>
-  backuptool list
+  backuptool [options] create
+  backuptool [options] restore
+  backuptool [options] rotate
+  backuptool [options] delete <name>
+  backuptool [options] list
 
-All necessary settings will be read from configuration in /etc/backuptool
+All necessary settings will be read from the config dir.
 
 Options:
-  -h --help    Show this
+  -h --help               Show this
+  -c --config CONFIG_DIR  Path to config directory. [default: /etc/backuptool/]
 
 """
 
@@ -27,8 +28,6 @@ import subprocess
 
 from docopt import docopt
 from backuptool import FileBackup, FTPBackup, S3Backup, CallingUserError
-
-CONFIG_DIR = '/etc/backuptool/'
 
 
 def run_local_puppet(manifest):
@@ -47,7 +46,8 @@ def print_line(character='–'):
 def main():
     """Executed, when script is called directly"""
     arguments = docopt(__doc__)
-    backup_config = yamlreader.yaml_load(CONFIG_DIR, {})['backup']
+    config_dir = arguments['--config']
+    backup_config = yamlreader.yaml_load(config_dir, {})['backup']
     backups = backup_config.keys()
     if arguments['list']:
         print('Available backups for this instance')
