@@ -1,3 +1,9 @@
+.. image:: https://travis-ci.org/sneben/backuptool.svg?branch=master
+    :target: https://travis-ci.org/sneben/backuptool
+
+.. image:: https://coveralls.io/repos/sneben/backuptool/badge.svg?branch=master&service=github
+    :target: https://coveralls.io/github/sneben/backuptool?branch=master
+
 ==========
 backuptool
 ==========
