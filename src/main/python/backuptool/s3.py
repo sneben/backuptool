@@ -14,6 +14,7 @@ class S3Backup(Backup):
 
     def __init__(self, *args, **kwargs):
         super(S3Backup, self).__init__(*args, **kwargs)
+        self.region = self.config.get('aws-region', 'eu-central-1')
         self.connection = None
         self.bucket = None
         self.s3_keys = None
@@ -25,7 +26,7 @@ class S3Backup(Backup):
         """Connect against aws services"""
         key_id = self.config['aws-access-key-id']
         secret_key = self.config['aws-secret-access-key']
-        self.connection = s3.connect_to_region('eu-central-1',
+        self.connection = s3.connect_to_region(self.region,
                                                aws_access_key_id=key_id,
                                                aws_secret_access_key=secret_key)
         self.bucket = self.connection.get_bucket(self.bucket_name)

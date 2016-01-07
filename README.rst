@@ -134,6 +134,7 @@ The needed configuration paramters are:
 
 .. code-block:: yaml
 
+    aws-region: eu-west-1
     aws-access-key-id: AKIAIOSFODNN7EXAMPLE
     aws-secret-access-key: wJalrXUtnFEMI/K7MDENG/bPxRfiCYzEXAMPLEKEY
     target: s3://my-backup-bucket
