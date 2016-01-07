@@ -28,16 +28,17 @@ Following commands are available:
 .. code-block:: text
 
     Usage:
-      backuptool create
-      backuptool restore
-      backuptool rotate
-      backuptool delete <name>
-      backuptool list
+      backuptool [options] create
+      backuptool [options] restore
+      backuptool [options] rotate
+      backuptool [options] delete <name>
+      backuptool [options] list
 
-    All necessary settings will be read from configuration in /etc/backuptool
+    All necessary settings will be read from the config dir.
 
     Options:
       -h --help               Show this
+      -c --config CONFIG_DIR  Path to config directory. [default: /etc/backuptool/]
 
 Installation
 ============
