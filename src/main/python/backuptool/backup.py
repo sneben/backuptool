@@ -40,10 +40,9 @@ class Backup(object):
         self.ldap_backup = None
         self.filename_prefix = 'backup-{0}'.format(self.name)
         self.rotation_num = self.config['rotate']
-        if 'encrypt' in self.config:
-            self.encrypt = self.config['encrypt']
-            if self.encrypt:
-                self.gpg = gnupg.GPG()
+        self.encrypt = self.config.get('encrypt', False)
+        if self.encrypt:
+            self.gpg = gnupg.GPG()
             self.gpg_key_id = self.config['gpg_key_id']
         if 'files' in self.config:
             self.files = self.config['files']
