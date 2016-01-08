@@ -145,6 +145,15 @@ The needed configuration paramters are:
     aws-secret-access-key: wJalrXUtnFEMI/K7MDENG/bPxRfiCYzEXAMPLEKEY
     target: s3://my-backup-bucket
 
+User
+----
+The script can be configured to only run under a certain user. If the calling
+user is a different one, the script will refuse to work (Default is 'root').
+
+.. code-block:: yaml
+
+    user: user1
+
 Rotation
 --------
 The backup filenames have a timestamp in the name (see section
@@ -182,12 +191,13 @@ Example configuration with all available features:
 
     backup:
         mybackup_name:
-            aws-access-key-id: AKIAIOSFODNN7EXAMPLE
-            aws-secret-access-key: wJalrXUtnFEMI/K7MDENG/bPxRfiCYzEXAMPLEKEY
-            target: s3://my-backup-bucket
+            user: user1
             rotate: 3
             encrypt: True
             gpg_key_id: 1A2B3C4D
+            target: s3://my-backup-bucket
+            aws-access-key-id: AKIAIOSFODNN7EXAMPLE
+            aws-secret-access-key: wJalrXUtnFEMI/K7MDENG/bPxRfiCYzEXAMPLEKEY
             ldap_backup: True
             files:
                 - /path/to/backup

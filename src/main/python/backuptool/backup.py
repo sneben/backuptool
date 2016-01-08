@@ -31,6 +31,7 @@ class Backup(object):
         self.name = args[0]
         self.config = kwargs.get('config', {})
         self.workdir = kwargs.get('workdir')
+        self.user = self.config.get('user', 'root')
         self.encrypt = None
         self.files = None
         self.filename = None
@@ -53,13 +54,13 @@ class Backup(object):
         if 'ldap_backup' in self.config:
             self.ldap_backup = self.config['ldap_backup']
 
-    def _needs_root_user(original_function):
-        """Decorator method to ensure sieve connectivity"""
+    def _needs_configured_user(original_function):
+        """Decorator method to ensure that current user is the configured one"""
         @wraps(original_function)
         def new_function(self, *args, **kwargs):
-            if getpass.getuser() != 'root':
-                message = 'Root user is needed to perform this action'
-                raise CallingUserError(message)
+            if getpass.getuser() != self.user:
+                message = 'User "{0}" is needed to perform this action'
+                raise CallingUserError(message.format(self.user))
             return original_function(self, *args, **kwargs)
         return new_function
 
@@ -102,7 +103,7 @@ class Backup(object):
                     move_dst = '{0}/{1}'.format(dst, os.path.basename(member))
                     distutils.dir_util.copy_tree(member, move_dst)
 
-    @_needs_root_user
+    @_needs_configured_user
     def create(self):
         """Collect data, encrypt it and upload the result"""
         self.copy_files()
@@ -153,7 +154,7 @@ class Backup(object):
             if not crypt.ok:
                 raise NameError('GPG encryption was not successfull!')
 
-    @_needs_root_user
+    @_needs_configured_user
     def restore(self):
         """Call all necessary methods to do an backup restore"""
         if self.download():
