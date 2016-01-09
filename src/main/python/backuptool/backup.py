@@ -37,7 +37,6 @@ class Backup(object):
         self.filename = None
         self.filename_abs = None
         self.mysql_databases = None
-        self.ldap_backup = None
         self.filename_prefix = 'backup-{0}'.format(self.name)
         self.rotation_num = self.config['rotate']
         self.encrypt = self.config.get('encrypt', False)
@@ -50,8 +49,9 @@ class Backup(object):
             self.mysql_databases = self.config['mysql_databases']
             self.mysql_user = self.config['mysql_user']
             self.mysql_password = self.config['mysql_password']
-        if 'ldap_backup' in self.config:
-            self.ldap_backup = self.config['ldap_backup']
+        self.ldap_backup = self.config.get('ldap_backup')
+        if self.ldap_backup:
+            self.ldap_datadir = self.config.get('ldap_datadir', '/var/lib/ldap')
 
     def _needs_configured_user(original_function):
         """Decorator method to ensure that current user is the configured one"""
@@ -181,11 +181,12 @@ class Backup(object):
         """Wipe ldap and import the dump from backup"""
         if os.path.isdir("{0}/ldap".format(self.workdir)):
             subprocess.check_call('service slapd stop', shell=True)
-            self.rmfile('/var/lib/ldap/*')
+            self.rmfile('{0}/*'.format(self.ldap_datadir))
             cmds = [
                 'slapadd -l {0}/ldap/dump.ldif'.format(self.workdir),
-                'echo "set_flags DB_LOG_AUTOREMOVE" >> /var/lib/ldap/DB_CONFIG',
-                'chown -R openldap:openldap /var/lib/ldap'
+                ('echo "set_flags DB_LOG_AUTOREMOVE" ' +
+                 '>> {0}/DB_CONFIG'.format(self.ldap_datadir)),
+                'chown -R openldap:openldap {0}'.format(self.ldap_datadir)
             ]
             for cmd in cmds:
                 subprocess.check_call(cmd, shell=True)

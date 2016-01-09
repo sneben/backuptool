@@ -102,13 +102,15 @@ this dump(s) is/are simply played back using ``mysql``.
 LDAP
 ~~~~
 Generate an ldif of an entire ldap database. When the backup is restored the
-whole database directory get wiped (e.g. ``/var/lib/ldap/``) and is restored
-using the ldif from backup. ``slapd`` is *stopped* and *started* prior and
+whole database directory get wiped and is restored using the ldif from backup.
+The default ldap data directory is ``/var/lib/ldap/``, but can be changed with
+the option ``ldap_datadir``. ``slapd`` is *stopped* and *started* prior and
 after the restore process.
 
 .. code-block:: yaml
 
     ldap_backup: True
+    ldap_datadir: /var/lib/ldap
 
 Backup targets
 --------------
