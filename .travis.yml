@@ -3,11 +3,10 @@ language: python
 python:
   - "2.6"
   - "2.7"
-
 install:
   - pip install pybuilder coveralls
   - pyb -v install_dependencies
 script:
-  - pyb -v -X verify analyze
+  - pyb -v verify analyze
 after_success:
   - coveralls --verbose

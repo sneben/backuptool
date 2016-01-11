@@ -59,7 +59,7 @@ To build the project follow these steps:
    $ pyb -v
 
 The generated install source can be found in ``target/dist/backuptool-0.1/``.
-Do what ever you want with the ``setup.py``
+Do what ever you want with the ``setup.py``.
 
 Configuration
 =============

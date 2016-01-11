@@ -27,6 +27,7 @@ def set_properties(project):
     project.build_depends_on('gnupg')
     project.build_depends_on('yamlreader')
     project.build_depends_on('boto')
+    project.build_depends_on('docopt')
 
 
 @task
