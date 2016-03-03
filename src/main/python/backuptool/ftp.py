@@ -4,7 +4,7 @@
 from __future__ import print_function
 
 import re
-import ftplib
+import ftplib  # nosec
 
 from .backup import Backup
 
@@ -31,11 +31,11 @@ class FTPBackup(Backup):
         port = 21
         if match.group(2):
             port = match.group(2)
-        self.ftp = ftplib.FTP()
+        self.ftp = ftplib.FTP()  # nosec
         self.ftp.connect(host, port)
         self.ftp.login(self.config['ftp_user'], self.config['ftp_password'])
 
-        self.ftp = ftplib.FTP(self.config['target'].split('//')[1])
+        self.ftp = ftplib.FTP(self.config['target'].split('//')[1])  # nosec
         self.ftp.login(self.config['ftp_user'], self.config['ftp_password'])
 
     def set_existing_backups(self):
