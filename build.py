@@ -25,6 +25,7 @@ def set_properties(project):
     project.depends_on('gnupg')
     project.depends_on('docopt')
     project.depends_on('yamlreader')
+    project.depends_on('paramiko')
     project.build_depends_on('mock')
     project.build_depends_on('moto')
     project.build_depends_on('unittest2')

@@ -27,7 +27,13 @@ import yamlreader
 import subprocess
 
 from docopt import docopt
-from backuptool import FileBackup, FTPBackup, S3Backup, CallingUserError
+from backuptool import (
+    FileBackup,
+    FTPBackup,
+    SFTPBackup,
+    S3Backup,
+    CallingUserError
+)
 
 
 def run_local_puppet(manifest):
@@ -60,6 +66,8 @@ def main():
             my_backup = S3Backup(entry, config=config, workdir=workdir)
         elif upload_protocol == 'ftp':
             my_backup = FTPBackup(entry, config=config, workdir=workdir)
+        elif upload_protocol == 'sftp':
+            my_backup = SFTPBackup(entry, config=config, workdir=workdir)
         elif upload_protocol == 'file':
             my_backup = FileBackup(entry, config=config, workdir=workdir)
         else:
