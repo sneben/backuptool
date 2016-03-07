@@ -16,7 +16,7 @@ class SFTPBackup(Backup):
 
     def __init__(self, *args, **kwargs):
         super(SFTPBackup, self).__init__(*args, **kwargs)
-        self.existing_backup_listings = []
+        self.existing_backup_files = []
         self.transport = None
         self.sftp = None
         self.connect()
@@ -44,13 +44,11 @@ class SFTPBackup(Backup):
             stats = self.sftp.stat(entry)
             date_format = '%b %d %H:%M'
             date = datetime.fromtimestamp(stats.st_mtime).strftime(date_format)
-            self.existing_backup_files.append(
-                {
-                    'name': entry,
-                    'size': stats.st_size / 1024 / 1024,
-                    'date': date
-                }
-            )
+            self.existing_backup_files.append({
+                'name': entry,
+                'size': '{0}MB'.format(stats.st_size / 1024 / 1024),
+                'date': date
+            })
 
     def upload(self):
         """Upload the composed (and encrypted) backup file"""
@@ -65,7 +63,7 @@ class SFTPBackup(Backup):
     def list(self):
         """List all available backups on ftp server"""
         print('{0} (SFTP):'.format(self.name))
-        for entry in self.existing_backup_listings:
+        for entry in self.existing_backup_files:
             print('  {0:<53}{1:<10}{2}'.format(entry['name'],
                                                entry['size'],
                                                entry['date']))
