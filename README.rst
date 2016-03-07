@@ -26,6 +26,7 @@ encrypted with **gpg**. The target to place the backup to could be:
 
 * Local filesystem
 * FTP
+* SFTP
 * S3
 
 The resulting filenames are like **backup-<name>-<timestamp>.tar.gz[.gpg]**
@@ -123,6 +124,17 @@ in the filesystem. The needed configuration paramters are:
 .. code-block:: yaml
 
     target: file://path/to/put/backup
+
+SFTP
+~~~~
+Uploads the resulting ``tar.gz`` to an sftp space.
+The needed configuration paramters are:
+
+.. code-block:: yaml
+
+    sftp_user: username
+    sftp_password: password123
+    target: sftp://backup.example.com
 
 FTP
 ~~~
