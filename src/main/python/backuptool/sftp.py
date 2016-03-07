@@ -72,7 +72,6 @@ class SFTPBackup(Backup):
     def rotate(self):
         """Only keep the given amount of backup files and delete the rest"""
         files = self.existing_backup_files
-        files.reverse()
         files_to_be_deleted = files[self.rotation_num:]
         for backup_file in files_to_be_deleted:
             self.sftp.remove(backup_file['name'])
