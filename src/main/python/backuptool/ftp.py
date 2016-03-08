@@ -58,6 +58,9 @@ class FTPBackup(Backup):
     def list(self):
         """List all available backups on ftp server"""
         print('{0} (FTP):'.format(self.name))
+        if not self.existing_backup_files:
+            print('  <no backups>')
+            return
         for entry in self.existing_backup_listings:
             date = ' '.join(entry.split()[5:8])
             size = '{0:.2f}MB'.format(float(entry.split()[4]) / 1024 / 1024)

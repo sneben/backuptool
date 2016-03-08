@@ -71,6 +71,9 @@ class S3Backup(Backup):
     def list(self):
         """List all available backups for this type"""
         print('{0} (S3):'.format(self.name))
+        if not self.s3_keys:
+            print('  <no backups>')
+            return
         for key in self.s3_keys:
             key_timestamp = '-'.join(key.name.split('-')[-1:]).split('.')[0]
             parsed_date = datetime.strptime(key_timestamp, '%Y%m%d%H%M%S')

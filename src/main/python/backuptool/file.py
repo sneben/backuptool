@@ -37,6 +37,9 @@ class FileBackup(Backup):
     def list(self):
         """List all available file backups"""
         print('{0} (FILE):'.format(self.name))
+        if not self.existing_backup_files:
+            print('  <no backups>')
+            return
         for entry in self.existing_backup_files:
             file_path = '{0}/{1}'.format(self.backup_dir, entry)
             date = time.ctime(os.path.getctime(file_path))
