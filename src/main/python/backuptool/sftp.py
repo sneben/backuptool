@@ -41,14 +41,18 @@ class SFTPBackup(Backup):
     def set_existing_backups(self):
         """Set a list of all existing backups entries found on ftp server"""
         for entry in self.sftp.listdir():
-            stats = self.sftp.stat(entry)
-            date_format = '%b %d %H:%M'
-            date = datetime.fromtimestamp(stats.st_mtime).strftime(date_format)
-            self.existing_backup_files.append({
-                'name': entry,
-                'size': '{0}MB'.format(stats.st_size / 1024 / 1024),
-                'date': date
-            })
+            pattern = r'^{0}-\d+.tar.gz(?:.gpg)?$'
+            pattern = pattern.format(self.filename_prefix)
+            if re.match(pattern, entry):
+                stats = self.sftp.stat(entry)
+                mtime = stats.st_mtime
+                date_format = '%b %d %H:%M'
+                date = datetime.fromtimestamp(mtime).strftime(date_format)
+                self.existing_backup_files.append({
+                    'name': entry,
+                    'size': '{0}MB'.format(stats.st_size / 1024 / 1024),
+                    'date': date
+                })
 
     def upload(self):
         """Upload the composed (and encrypted) backup file"""

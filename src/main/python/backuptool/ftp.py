@@ -43,7 +43,10 @@ class FTPBackup(Backup):
         self.ftp.dir(self.existing_backup_listings.append)
         self.existing_backup_files = []
         for entry in self.existing_backup_listings:
-            self.existing_backup_files.append(entry.split()[8])
+            pattern = r'^{0}-\d+.tar.gz(?:.gpg)?$'
+            pattern = pattern.format(self.filename_prefix)
+            if re.match(pattern, entry.split()[8]):
+                self.existing_backup_files.append(entry.split()[8])
 
     def upload(self):
         """Upload the composed (and encrypted) backup file"""
