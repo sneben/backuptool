@@ -216,3 +216,13 @@ class Backup(object):
         # Python 2.6 has no support for the context manager protocol
         with closing(tarfile.open(self.filename_abs)) as tar:
             tar.extractall(path=self.workdir)
+
+    def check_encryption_by_name(self, name):
+        """Check if the given name seems to be a encrypted backup"""
+        if name.split('.')[-1] == 'gpg':
+            self.encrypt = True
+            self.filename = '.'.join(name.split('.')[:-1])
+        else:
+            self.encrypt = False
+            self.filename = name
+        self.filename_abs = '{0}/{1}'.format(self.workdir, self.filename)

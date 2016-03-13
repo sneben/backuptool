@@ -50,16 +50,10 @@ class S3Backup(Backup):
         """Download the newest backup from s3"""
         if not self.s3_keys:
             return False
-        freshest_backup = self.s3_keys[0]
-        file_target = '{0}/{1}'.format(self.workdir, freshest_backup.name)
-        freshest_backup.get_contents_to_filename(file_target)
-        if freshest_backup.name.split('.')[-1] == 'gpg':
-            self.encrypt = True
-            self.filename = '.'.join(freshest_backup.name.split('.')[:-1])
-        else:
-            self.encrypt = False
-            self.filename = freshest_backup.name
-        self.filename_abs = "{0}/{1}".format(self.workdir, self.filename)
+        newest_backup = self.s3_keys[0]
+        file_target = '{0}/{1}'.format(self.workdir, newest_backup.name)
+        newest_backup.get_contents_to_filename(file_target)
+        self.check_encryption_by_name(newest_backup.name)
         return True
 
     def rotate(self):

@@ -87,17 +87,11 @@ class FTPBackup(Backup):
         """Download the newest backup from ftp server"""
         if not self.existing_backup_files:
             return False
-        newest_backup_file = self.existing_backup_files[-1]
-        file_target = '{0}/{1}'.format(self.workdir, newest_backup_file)
+        newest_backup = self.existing_backup_files[-1]
+        file_target = '{0}/{1}'.format(self.workdir, newest_backup)
         with open(file_target, 'wb') as target:
             def callback(data):
                 target.write(data)
-            self.ftp.retrbinary("RETR " + newest_backup_file, callback)
-        if newest_backup_file.split('.')[-1] == 'gpg':
-            self.encrypt = True
-            self.filename = '.'.join(newest_backup_file.split('.')[:-1])
-        else:
-            self.encrypt = False
-            self.filename = newest_backup_file
-        self.filename_abs = '{0}/{1}'.format(self.workdir, self.filename)
+            self.ftp.retrbinary("RETR " + newest_backup, callback)
+        self.check_encryption_by_name(newest_backup)
         return True
