@@ -53,7 +53,11 @@ def main():
     """Executed, when script is called directly"""
     arguments = docopt(__doc__)
     config_dir = arguments['--config']
-    backup_config = yamlreader.yaml_load(config_dir, {})['backup']
+    try:
+        backup_config = yamlreader.yaml_load(config_dir, {})['backup']
+    except KeyError:
+        print('ERROR: Could not find configuration')
+        sys.exit(1)
     backups = backup_config.keys()
     if arguments['list']:
         print('Available backups for this instance')
