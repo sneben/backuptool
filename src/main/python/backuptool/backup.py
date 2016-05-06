@@ -38,7 +38,7 @@ class Backup(object):
         self.filename_abs = None
         self.mysql_databases = None
         self.filename_prefix = 'backup-{0}'.format(self.name)
-        self.rotation_num = self.config['rotate']
+        self.rotation_num = self.config.get('rotate', 3)
         self.encrypt = self.config.get('encrypt', False)
         if self.encrypt:
             self.gpg = gnupg.GPG()
