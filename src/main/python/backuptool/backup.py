@@ -24,6 +24,11 @@ class CallingUserError(Exception):
     pass
 
 
+class DecryptionError(Exception):
+    """Exception class for throwing DecryptionError exceptions"""
+    pass
+
+
 class Backup(object):
     """Parent class for backup operations"""
 
@@ -117,8 +122,10 @@ class Backup(object):
         if not self.encrypt:
             return
         with open('{0}.gpg'.format(self.filename_abs), 'rb') as gpg_file:
-            self.gpg.decrypt_file(gpg_file, self.gpg_key_id,
-                                  output=self.filename_abs)
+            status = self.gpg.decrypt_file(gpg_file, self.gpg_key_id,
+                                           output=self.filename_abs)
+        if not status.ok:
+            raise DecryptionError('Unable to decrypt backup file')
 
     def dump_database(self):
         """Create a sql dump of given mysql databases"""

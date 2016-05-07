@@ -32,7 +32,8 @@ from backuptool import (
     FTPBackup,
     SFTPBackup,
     S3Backup,
-    CallingUserError
+    CallingUserError,
+    DecryptionError
 )
 
 
@@ -93,7 +94,7 @@ def main():
                 my_backup.delete(arguments['<name>'])
             elif arguments['list']:
                 my_backup.list()
-        except CallingUserError as error:
+        except (CallingUserError, DecryptionError) as error:
             print(error)
             sys.exit(1)
         finally:

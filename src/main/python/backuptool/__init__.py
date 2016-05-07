@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from .backup import CallingUserError
+from .backup import DecryptionError
 from .ftp import FTPBackup
 from .sftp import SFTPBackup
 from .s3 import S3Backup
@@ -13,5 +14,6 @@ __all__ = [
     'SFTPBackup',
     'S3Backup',
     'FileBackup',
-    'CallingUserError'
+    'CallingUserError',
+    'DecryptionError'
 ]
