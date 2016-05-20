@@ -28,10 +28,6 @@ import subprocess
 
 from docopt import docopt
 from backuptool import (
-    FileBackup,
-    FTPBackup,
-    SFTPBackup,
-    S3Backup,
     CallingUserError,
     DecryptionError
 )
@@ -68,12 +64,16 @@ def main():
         upload_protocol = config['target'].split('://')[0]
         workdir = tempfile.mkdtemp(prefix='backuptool-')
         if upload_protocol == 's3':
+            from backuptool.s3 import S3Backup
             my_backup = S3Backup(entry, config=config, workdir=workdir)
         elif upload_protocol == 'ftp':
+            from backuptool.ftp import FTPBackup
             my_backup = FTPBackup(entry, config=config, workdir=workdir)
         elif upload_protocol == 'sftp':
+            from backuptool.sftp import SFTPBackup
             my_backup = SFTPBackup(entry, config=config, workdir=workdir)
         elif upload_protocol == 'file':
+            from backuptool.file import FileBackup
             my_backup = FileBackup(entry, config=config, workdir=workdir)
         else:
             message = "Target type '{0}' is not supported"
