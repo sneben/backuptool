@@ -10,7 +10,7 @@ from boto.s3.key import Key
 from mock import patch
 from moto import mock_s3
 from unittest2 import TestCase
-from backuptool import S3Backup
+from backuptool.s3 import S3Backup
 
 
 class S3BackupTests(TestCase):

@@ -9,7 +9,7 @@ import tempfile
 
 from mock import patch
 from unittest2 import TestCase
-from backuptool import FTPBackup
+from backuptool.ftp import FTPBackup
 
 
 class FTPBackupTests(TestCase):

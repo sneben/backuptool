@@ -9,7 +9,7 @@ import tempfile
 
 from mock import patch
 from unittest2 import TestCase
-from backuptool import FileBackup
+from backuptool.file import FileBackup
 
 
 class FileBackupTests(TestCase):
