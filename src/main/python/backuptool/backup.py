@@ -140,12 +140,15 @@ class Backup(object):
                                            database)
                 subprocess.check_call(formatted_cmd, shell=True)
 
-    def dump_ldap(self):
+    def dump_ldap(self, debug=False):
         """Create a complete ldap dump"""
         if self.ldap_backup is not None and bool(self.ldap_backup):
             self.create_directory('{0}/ldap'.format(self.workdir))
-            cmd = 'slapcat -n1 -l {0}/ldap/dump.ldif'
-            subprocess.check_call(cmd.format(self.workdir), shell=True)
+            cmd = 'slapcat -n1 -l {0}/ldap/dump.ldif{1}'
+            silent = ''
+            if debug:
+                silent = ' > /dev/null 2&>1'
+            subprocess.check_call(cmd.format(self.workdir, silent), shell=True)
 
     def encrypt_archive(self):
         """Encrypt the created tarball with gpg"""
