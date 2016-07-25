@@ -57,6 +57,7 @@ class Backup(object):
         self.ldap_backup = self.config.get('ldap_backup')
         if self.ldap_backup:
             self.ldap_datadir = self.config.get('ldap_datadir', '/var/lib/ldap')
+        self.devnull = open(os.devnull, 'w')
 
     def _needs_configured_user(original_function):
         """Decorator method to ensure that current user is the configured one"""
@@ -131,25 +132,30 @@ class Backup(object):
         """Create a sql dump of given mysql databases"""
         if self.mysql_databases is not None:
             self.create_directory('{0}/mysql'.format(self.workdir))
-            cmd = 'mysqldump -u {0} -p{1} {2} > {3}/mysql/{4}.sql'
             for database in self.mysql_databases:
-                formatted_cmd = cmd.format(self.mysql_user,
-                                           self.mysql_password,
-                                           database,
-                                           self.workdir,
-                                           database)
-                subprocess.check_call(formatted_cmd, shell=True)
+                cmd = [
+                    'mysqldump',
+                    '-u', self.mysql_user,
+                    '-p{0}'.format(self.mysql_password),
+                    '--result-file',
+                    '{0}/mysql/{1}.sql'.format(self.workdir, database),
+                    database
+                ]
+                subprocess.check_call(cmd, shell=False,
+                                      stdout=self.devnull,
+                                      stderr=subprocess.STDOUT)
 
-    def dump_ldap(self, debug=False):
+    def dump_ldap(self):
         """Create a complete ldap dump"""
         if self.ldap_backup is not None and bool(self.ldap_backup):
             self.create_directory('{0}/ldap'.format(self.workdir))
-            cmd = ['slapcat', '-n1', '-l',
-                   '{0}/ldap/dump.ldif'.format(self.workdir)]
-            DEVNULL = open(os.devnull, 'w')
-            if debug:
-                DEVNULL = None
-            subprocess.check_call(cmd, stderr=DEVNULL)
+            cmd = [
+                'slapcat', '-n1', '-l',
+                '{0}/ldap/dump.ldif'.format(self.workdir)
+            ]
+            subprocess.check_call(cmd, shell=False,
+                                  stdout=self.devnull,
+                                  stderr=subprocess.STDOUT)
 
     def encrypt_archive(self):
         """Encrypt the created tarball with gpg"""
