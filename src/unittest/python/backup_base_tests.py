@@ -22,7 +22,11 @@ class BackupBaseTests(TestCase):
             'mysql_databases': ['test_db_1', 'test_db_2'],
             'mysql_user': 'testuser',
             'mysql_password': 'testpassword',
-            'ldap_backup': True,
+            'ldap_backup': {
+                'datadir': '/tmp/ldap',
+                'system_user': 'ldap',
+                'system_group': 'ldap'
+            },
             'rotate': 3
         }
         self.backup = Backup('test_backup',
