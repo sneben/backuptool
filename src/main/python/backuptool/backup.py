@@ -56,7 +56,11 @@ class Backup(object):
             self.mysql_password = self.config['mysql_password']
         self.ldap_backup = self.config.get('ldap_backup')
         if self.ldap_backup:
-            self.ldap_datadir = self.config.get('ldap_datadir', '/var/lib/ldap')
+            self.ldap_datadir = self.ldap_backup.get('datadir', '/var/lib/ldap')
+            self.ldap_system_user = self.ldap_backup.get('system_user',
+                                                         'openldap')
+            self.ldap_system_group = self.ldap_backup.get('system_group',
+                                                          'openldap')
         self.devnull = open(os.devnull, 'w')
 
     def _needs_configured_user(original_function):
@@ -146,7 +150,7 @@ class Backup(object):
 
     def dump_ldap(self):
         """Create a complete ldap dump"""
-        if self.ldap_backup is not None and bool(self.ldap_backup):
+        if self.ldap_backup:
             self.create_directory('{0}/ldap'.format(self.workdir))
             cmd = [
                 'slapcat', '-n1', '-l',
@@ -194,14 +198,16 @@ class Backup(object):
 
     def restore_ldap(self):
         """Wipe ldap and import the dump from backup"""
-        if os.path.isdir("{0}/ldap".format(self.workdir)):
+        if os.path.isdir('{0}/ldap'.format(self.workdir)):
             subprocess.check_call('service slapd stop', shell=True)
             self.rmfile('{0}/*'.format(self.ldap_datadir))
             cmds = [
                 'slapadd -l {0}/ldap/dump.ldif'.format(self.workdir),
                 ('echo "set_flags DB_LOG_AUTOREMOVE" ' +
                  '>> {0}/DB_CONFIG'.format(self.ldap_datadir)),
-                'chown -R openldap:openldap {0}'.format(self.ldap_datadir)
+                'chown -R {0}:{1} {2}'.format(self.ldap_system_user,
+                                              self.ldap_system_group,
+                                              self.ldap_datadir)
             ]
             for cmd in cmds:
                 subprocess.check_call(cmd, shell=True)

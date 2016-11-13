@@ -105,13 +105,17 @@ LDAP
 Generate an ldif of an entire ldap database. When the backup is restored the
 whole database directory get wiped and is restored using the ldif from backup.
 The default ldap data directory is ``/var/lib/ldap/``, but can be changed with
-the option ``ldap_datadir``. ``slapd`` is *stopped* and *started* prior and
-after the restore process.
+the option ``datadir``. To set the correct ownership of the ``datadir``, you
+can define the ``system_user`` and the ``system_group`` option. Default is
+``openldap``. ``slapd`` is *stopped* and *started* prior and after the
+restore process.
 
 .. code-block:: yaml
 
-    ldap_backup: True
-    ldap_datadir: /var/lib/ldap
+    ldap_backup:
+        datadir: /var/lib/ldap
+        system_user: openldap
+        system_group: openldap
 
 Backup targets
 --------------
