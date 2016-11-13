@@ -118,7 +118,7 @@ class Backup(object):
         self.encrypt_archive()
         self.upload()
 
-    def decrypt(self):
+    def decrypt_archive(self):
         """Decrypt the gpg file"""
         if not self.encrypt:
             return
@@ -141,8 +141,7 @@ class Backup(object):
                     '{0}/mysql/{1}.sql'.format(self.workdir, database),
                     database
                 ]
-                subprocess.check_call(cmd, shell=False,
-                                      stdout=self.devnull,
+                subprocess.check_call(cmd, stdout=self.devnull,
                                       stderr=subprocess.STDOUT)
 
     def dump_ldap(self):
@@ -153,8 +152,7 @@ class Backup(object):
                 'slapcat', '-n1', '-l',
                 '{0}/ldap/dump.ldif'.format(self.workdir)
             ]
-            subprocess.check_call(cmd, shell=False,
-                                  stdout=self.devnull,
+            subprocess.check_call(cmd, stdout=self.devnull,
                                   stderr=subprocess.STDOUT)
 
     def encrypt_archive(self):
@@ -175,7 +173,7 @@ class Backup(object):
         """Call all necessary methods to do an backup restore"""
         if self.download():
             print('Restoring backup: {0}'.format(self.name))
-            self.decrypt()
+            self.decrypt_archive()
             self.untar_backup_file()
             self.restore_files()
             self.restore_database()
