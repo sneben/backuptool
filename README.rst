@@ -208,20 +208,19 @@ Example configuration with all available features:
 
 .. code-block:: yaml
 
-    backup:
-        mybackup_name:
-            user: user1
-            rotate: 3
-            encrypt: True
-            gpg_key_id: 1A2B3C4D
-            target: s3://my-backup-bucket
-            aws-access-key-id: AKIAIOSFODNN7EXAMPLE
-            aws-secret-access-key: wJalrXUtnFEMI/K7MDENG/bPxRfiCYzEXAMPLEKEY
-            ldap_backup: True
-            files:
-                - /path/to/backup
-            mysql_databases:
-                - mydatabase
-            mysql_user: backupuser
-            mysql_password: password123
-            puppet-manifest: /etc/puppet/manifests/mymanifests
+    mybackup_name:
+        user: user1
+        rotate: 3
+        encrypt: True
+        gpg_key_id: 1A2B3C4D
+        target: s3://my-backup-bucket
+        aws-access-key-id: AKIAIOSFODNN7EXAMPLE
+        aws-secret-access-key: wJalrXUtnFEMI/K7MDENG/bPxRfiCYzEXAMPLEKEY
+        ldap_backup: True
+        files:
+            - /path/to/backup
+        mysql_databases:
+            - mydatabase
+        mysql_user: backupuser
+        mysql_password: password123
+        puppet-manifest: /etc/puppet/manifests/mymanifests

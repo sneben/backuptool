@@ -51,7 +51,7 @@ def main():
     arguments = docopt(__doc__)
     config_dir = arguments['--config']
     try:
-        backup_config = yamlreader.yaml_load(config_dir, {})['backup']
+        backup_config = yamlreader.yaml_load(config_dir, {})
     except KeyError:
         print('ERROR: Could not find configuration')
         sys.exit(1)
