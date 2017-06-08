@@ -73,6 +73,21 @@ class Backup(object):
             return original_function(self, *args, **kwargs)
         return new_function
 
+    @staticmethod
+    def _lookahead(iterable):
+        """Indicator for the last element in a iterable
+
+        Go through all values from the given iterable and enhance
+        the informations if there are more values to come after the
+        current one (True), or if it is the last value (False).
+        """
+        iterator = iter(iterable)
+        last = next(iterator)
+        for value in iterator:
+            yield last, True
+            last = value
+        yield last, False
+
     def download(self):
         """Dummy method, will be overwritten by child classes"""
         raise NotImplementedError  # pragma: no cover

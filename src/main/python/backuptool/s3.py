@@ -68,12 +68,19 @@ class S3Backup(Backup):
         if not self.s3_keys:
             print('  <no backups>')
             return
-        for key in self.s3_keys:
+        for key, more_items in self._lookahead(self.s3_keys):
             key_timestamp = '-'.join(key.name.split('-')[-1:]).split('.')[0]
             parsed_date = datetime.strptime(key_timestamp, '%Y%m%d%H%M%S')
             date = parsed_date.strftime('%Y-%m-%dT%H:%M:%S')
             size = '{0:.2f}MB'.format(float(key.size) / 1024 / 1024)
-            print('  {0:<53}{1:<10}{2}'.format(key.name, size, date))
+            if more_items:
+                tree_prefix = '├─ '
+            else:
+                tree_prefix = '└─ '
+            print('{0}{1:<53}{2:<10}{3}'.format(tree_prefix,
+                                                key.name,
+                                                size,
+                                                date))
         print('')
 
     def delete(self, name):

@@ -15,7 +15,6 @@ class FTPBackup(Backup):
     def __init__(self, *args, **kwargs):
         super(FTPBackup, self).__init__(*args, **kwargs)
         self.ftp = None
-        self.existing_backup_listings = []
         self.existing_backup_files = []
         self.connect()
         self.set_existing_backups()
@@ -40,9 +39,10 @@ class FTPBackup(Backup):
 
     def set_existing_backups(self):
         """Set a list of all existing backups entries found on ftp server"""
-        self.ftp.dir(self.existing_backup_listings.append)
+        existing_backup_listings = []
+        self.ftp.dir(existing_backup_listings.append)
         self.existing_backup_files = []
-        for entry in self.existing_backup_listings:
+        for entry in existing_backup_listings:
             pattern = r'^{0}-\d+.tar.gz(?:.gpg)?$'
             pattern = pattern.format(self.filename_prefix)
             if re.match(pattern, entry.split()[8]):
@@ -64,11 +64,15 @@ class FTPBackup(Backup):
         if not self.existing_backup_files:
             print('  <no backups>')
             return
-        for entry in self.existing_backup_listings:
+        for entry, more_items in self._lookahead(self.existing_backup_listings):
             date = ' '.join(entry.split()[5:8])
             size = '{0:.2f}MB'.format(float(entry.split()[4]) / 1024 / 1024)
             name = entry.split()[8]
-            print('  {0:<53}{1:<10}{2}'.format(name, size, date))
+            if more_items:
+                tree_prefix = '├─ '
+            else:
+                tree_prefix = '└─ '
+            print('{0}{1:<53}{2:<10}{3}'.format(tree_prefix, name, size, date))
         print('')
 
     def rotate(self):

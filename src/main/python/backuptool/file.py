@@ -40,13 +40,17 @@ class FileBackup(Backup):
         if not self.existing_backup_files:
             print('  <no backups>')
             return
-        for entry in self.existing_backup_files:
+        for entry, more_items in self._lookahead(self.existing_backup_files):
             file_path = '{0}/{1}'.format(self.backup_dir, entry)
             date = time.ctime(os.path.getctime(file_path))
             size_value = float(os.path.getsize(file_path)) / 1024 / 1024
             size = '{0:.2f}MB'.format(size_value)
             name = entry
-            print('  {0:<53}{1:<10}{2}'.format(name, size, date))
+            if more_items:
+                tree_prefix = '├─ '
+            else:
+                tree_prefix = '└─ '
+            print('{0}{1:<53}{2:<10}{3}'.format(tree_prefix, name, size, date))
         print('')
 
     def rotate(self):

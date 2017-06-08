@@ -47,6 +47,24 @@ Following commands are available:
       -h --help               Show this
       -c --config CONFIG_DIR  Path to config directory. [default: /etc/backuptool/]
 
+Listing
+-------
+To just list the available backups for the current machine:
+
+.. code-block:: console
+
+   $ backuptool list
+   Available backups for this instance
+   ––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+   mybackup_name (SFTP):
+   ├─ backup-mybackup_name-20170607062837.tar.gz.gpg      2.04MB     2017-06-08T18:29:02
+   └─ backup-mybackup_name-20170608062901.tar.gz.gpg      2.04MB     2017-06-07T06:25:01
+
+   mybackup_name_1 (S3):
+   ├─ backup-mybackup_name_1-20170608182903.tar.gz.gpg    840.50MB   2017-06-08T18:29:03
+   ├─ backup-mybackup_name_1-20170608062505.tar.gz.gpg    840.50MB   2017-06-08T06:25:05
+   └─ backup-mybackup_name_1-20170607062505.tar.gz.gpg    840.50MB   2017-06-07T06:25:05
+
 Installation
 ============
 To build the project follow these steps:

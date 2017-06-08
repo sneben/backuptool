@@ -13,8 +13,9 @@ from backuptool.ftp import FTPBackup
 
 
 class FTPBackupTests(TestCase):
+    @patch('backuptool.ftp.FTPBackup.set_existing_backups', autospec=True)
     @patch('ftplib.FTP', autospec=True)
-    def setUp(self, mock_ftp):
+    def setUp(self, mock_ftp, mock_set_existing_backups):
         """Preparations to be done before every test"""
         self.workdir = tempfile.mkdtemp(prefix='backuptool-ftp-tests-')
         self.file_source_dir = '{0}/file_source'.format(self.workdir)
@@ -32,9 +33,11 @@ class FTPBackupTests(TestCase):
             'rotate': 3,
             'files': self.file_patterns
         }
+
         self.backup = FTPBackup('test_backup',
                                 config=self.ftp_based_config,
                                 workdir=self.backup_test_workdir)
+
 
     def tearDown(self):
         shutil.rmtree(self.workdir)
@@ -52,6 +55,7 @@ class FTPBackupTests(TestCase):
         entry = ('-rw-r--r--   1 user   group   826948694 Jul 25 04:27 ' +
                  'backup-listtest-20150725062606.tar.gz')
         self.backup.existing_backup_listings = [entry]
+        self.backup.existing_backup_files = ['backup-listtest-20150725062606.tar.gz']
         self.backup.list()
 
     def test_should_download_backup_files(self):

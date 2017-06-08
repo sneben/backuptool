@@ -70,10 +70,15 @@ class SFTPBackup(Backup):
         if not self.existing_backup_files:
             print('  <no backups>')
             return
-        for entry in self.existing_backup_files:
-            print('  {0:<53}{1:<10}{2}'.format(entry['name'],
-                                               entry['size'],
-                                               entry['date']))
+        for entry, more_items in self._lookahead(self.existing_backup_files):
+            if more_items:
+                tree_prefix = '├─ '
+            else:
+                tree_prefix = '└─ '
+            print('{0}{1:<53}{2:<10}{3}'.format(tree_prefix,
+                                                entry['name'],
+                                                entry['size'],
+                                                entry['date']))
         print('')
 
     def rotate(self):
