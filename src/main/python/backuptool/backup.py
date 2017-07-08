@@ -11,7 +11,6 @@ import shutil
 import getpass
 import tarfile
 import subprocess
-import distutils.dir_util
 
 from glob import glob
 from functools import wraps
@@ -125,7 +124,7 @@ class Backup(object):
                     shutil.copy(member, dst)
                 elif os.path.isdir(member):
                     move_dst = '{0}/{1}'.format(dst, os.path.basename(member))
-                    distutils.dir_util.copy_tree(member, move_dst)
+                    shutil.copytree(member, move_dst, symlinks=True)
 
     @_needs_configured_user
     def create(self):
