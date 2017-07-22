@@ -87,7 +87,11 @@ def main():
                 # Be sure the imported backup files have correct permissions,
                 # services are restarted to adapt a possible new config, ...
                 if 'puppet-manifest' in config:
-                    run_local_puppet(config['puppet-manifest'])
+                    if isinstance(config['puppet-manifest'], list):
+                        for manifest in config['puppet-manifest']:
+                            run_local_puppet(manifest)
+                    elif isinstance(config['puppet-manifest'], str):
+                        run_local_puppet(config['puppet-manifest'])
             elif arguments['rotate']:
                 my_backup.rotate()
             elif arguments['delete']:

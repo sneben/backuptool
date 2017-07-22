@@ -220,6 +220,15 @@ After the backup is restored, a local puppet manifest could be executed:
 
     puppet-manifest: /etc/puppet/manifests/mymanifests
 
+Maybe sometimes you want to execute several single manifests, then you can list
+them togethter:
+
+.. code-block:: yaml
+
+    puppet-manifest:
+        - /etc/puppet/manifests/mymanifest/manifest-1
+        - /etc/puppet/manifests/mymanifest/manifest-2
+
 Example configuration
 ---------------------
 Example configuration with all available features:
