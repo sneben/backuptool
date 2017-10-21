@@ -4,7 +4,7 @@
 """
 Usage:
   backuptool [options] create
-  backuptool [options] restore
+  backuptool [options] restore [name]
   backuptool [options] rotate
   backuptool [options] delete <name>
   backuptool [options] list
@@ -60,6 +60,9 @@ def main():
         print('Available backups for this instance')
         print_line()
     for entry in backups:
+        if arguments['restore'] and arguments['<name>']:
+            if arguments['<name>'] != entry:
+                continue
         config = backup_config[entry]
         upload_protocol = config['target'].split('://')[0]
         workdir = tempfile.mkdtemp(prefix='backuptool-')
