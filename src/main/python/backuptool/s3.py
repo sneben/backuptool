@@ -66,7 +66,7 @@ class S3Backup(Backup):
         """List all available backups for this type"""
         print('{0} (S3):'.format(self.name))
         if not self.s3_keys:
-            print('  <no backups>')
+            print('  <no backups>\n')
             return
         for key, more_items in self._lookahead(self.s3_keys):
             key_timestamp = '-'.join(key.name.split('-')[-1:]).split('.')[0]

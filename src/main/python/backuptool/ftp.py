@@ -62,7 +62,7 @@ class FTPBackup(Backup):
         """List all available backups on ftp server"""
         print('{0} (FTP):'.format(self.name))
         if not self.existing_backup_files:
-            print('  <no backups>')
+            print('  <no backups>\n')
             return
         for entry, more_items in self._lookahead(self.existing_backup_listings):
             date = ' '.join(entry.split()[5:8])

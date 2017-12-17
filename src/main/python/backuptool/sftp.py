@@ -68,7 +68,7 @@ class SFTPBackup(Backup):
         """List all available backups on ftp server"""
         print('{0} (SFTP):'.format(self.name))
         if not self.existing_backup_files:
-            print('  <no backups>')
+            print('  <no backups>\n')
             return
         for entry, more_items in self._lookahead(self.existing_backup_files):
             if more_items:

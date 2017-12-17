@@ -38,7 +38,7 @@ class FileBackup(Backup):
         """List all available file backups"""
         print('{0} (FILE):'.format(self.name))
         if not self.existing_backup_files:
-            print('  <no backups>')
+            print('  <no backups>\n')
             return
         for entry, more_items in self._lookahead(self.existing_backup_files):
             file_path = '{0}/{1}'.format(self.backup_dir, entry)
