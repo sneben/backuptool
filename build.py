@@ -15,7 +15,7 @@ result on s3, ftp or on the local filesystem"""
 license = 'Apache License 2.0'
 authors = [Author('Stefan Neben', "stefan.neben@mailfoo.net")]
 url = 'https://github.com/sneben/backuptool'
-version = '0.1'
+version = '0.2'
 default_task = ['clean', 'analyze', 'package']
 
 
@@ -34,4 +34,4 @@ def set_properties(project):
 @task
 @depends('prepare')
 def build_directory(project):
-    print project.expand_path("$dir_dist")
+    print(project.expand_path("$dir_dist"))

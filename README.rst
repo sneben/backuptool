@@ -35,16 +35,17 @@ Following commands are available:
 .. code-block:: text
 
     Usage:
-      backuptool [options] create
-      backuptool [options] restore
-      backuptool [options] rotate
+      backuptool [options] create [<name>]
+      backuptool [options] restore [<name>]
       backuptool [options] delete <name>
+      backuptool [options] rotate
       backuptool [options] list
 
     All necessary settings will be read from the config dir.
 
     Options:
       -h --help               Show this
+      -d --debug              Don't remove the working directory automatically
       -c --config CONFIG_DIR  Path to config directory. [default: /etc/backuptool/]
 
 Listing
@@ -212,22 +213,26 @@ into the configuration:
     encrypt: True
     gpg_key_id: 1A2B3C4D
 
-Puppet
-------
-After the backup is restored, a local puppet manifest could be executed:
+Pre & post scripts
+------------------
+You can define scripts/commands which should be executed before backup
+processes. E.g. for mounting things before **create** a backup:
 
 .. code-block:: yaml
 
-    puppet-manifest: /etc/puppet/manifests/mymanifests
+    pre-create: docker-machine mount docker.domain.com:/path/to/mount ./mnt/mybackup
 
-Maybe sometimes you want to execute several single manifests, then you can list
-them togethter:
+A multiline script could be given by using the yaml literal syntax. If a script
+should be run after the backup **create** process is finished, use this:
 
 .. code-block:: yaml
 
-    puppet-manifest:
-        - /etc/puppet/manifests/mymanifest/manifest-1
-        - /etc/puppet/manifests/mymanifest/manifest-2
+    post-create: |
+        docker-machine mount -u docker.domain.com:/path/to/mount ./mnt/mybackup
+        touch /tmp/backup_indicator
+
+To do the same for the **restore** process, use **restore** instead of
+**create** on the section name.
 
 Example configuration
 ---------------------
@@ -250,4 +255,7 @@ Example configuration with all available features:
             - mydatabase
         mysql_user: backupuser
         mysql_password: password123
-        puppet-manifest: /etc/puppet/manifests/mymanifests
+        pre-create: docker-machine mount docker.domain.com:/path/to/mount ./mnt/mybackup
+        post-create: |
+            docker-machine mount -u docker.domain.com:/path/to/mount ./mnt/mybackup
+            touch /tmp/backup_indicator

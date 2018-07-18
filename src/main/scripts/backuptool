@@ -3,16 +3,17 @@
 
 """
 Usage:
-  backuptool [options] create
-  backuptool [options] restore [name]
-  backuptool [options] rotate
+  backuptool [options] create [<name>]
+  backuptool [options] restore [<name>]
   backuptool [options] delete <name>
+  backuptool [options] rotate
   backuptool [options] list
 
 All necessary settings will be read from the config dir.
 
 Options:
   -h --help               Show this
+  -d --debug              Don't remove the working directory automatically
   -c --config CONFIG_DIR  Path to config directory. [default: /etc/backuptool/]
 
 """
@@ -32,11 +33,66 @@ from backuptool import (
     DecryptionError
 )
 
+from yamlreader import YamlReaderError
 
-def run_local_puppet(manifest):
-    """Run the local host config puppet"""
-    cmd = 'puppet apply {0}'.format(manifest)
-    return subprocess.check_output(cmd, shell=True)
+
+def perform_backup(name, config, arguments):
+    """Run the given backup"""
+    upload_protocol = config['target'].split('://')[0]
+    workdir = tempfile.mkdtemp(prefix='backuptool-')
+    if upload_protocol == 's3':
+        from backuptool.s3 import S3Backup
+        my_backup = S3Backup(name, config=config, workdir=workdir)
+    elif upload_protocol == 'ftp':
+        from backuptool.ftp import FTPBackup
+        my_backup = FTPBackup(name, config=config, workdir=workdir)
+    elif upload_protocol == 'sftp':
+        from backuptool.sftp import SFTPBackup
+        my_backup = SFTPBackup(name, config=config, workdir=workdir)
+    elif upload_protocol == 'file':
+        from backuptool.file import FileBackup
+        my_backup = FileBackup(name, config=config, workdir=workdir)
+    else:
+        message = "Target type '{0}' for backup {1} is not supported"
+        message = message.format(upload_protocol, name)
+        print(message)
+        return
+    try:
+        if arguments['create']:
+            run_script('pre-create', workdir, config.get('pre-create'))
+            my_backup.create()
+            run_script('post-create', workdir, config.get('post-create'))
+        elif arguments['restore']:
+            run_script('pre-restore', workdir, config.get('pre-restore'))
+            my_backup.restore()
+            run_script('post-restore', workdir, config.get('post-restore'))
+        elif arguments['rotate']:
+            my_backup.rotate()
+        elif arguments['delete']:
+            my_backup.delete(arguments['<name>'])
+        elif arguments['list']:
+            my_backup.list()
+    except (CallingUserError, DecryptionError) as error:
+        print(error)
+        sys.exit(1)
+    finally:
+        shutil.rmtree(workdir)
+
+
+def run_script(identifier, workdir, script):
+    """Run the given content in script as bash code
+
+    Write the configured content into a temporary file inside the working
+    directory and exexcute the result with the bash interpreter
+    """
+    if not script:
+        return
+    script_path = '{0}/{1}.sh'.format(workdir, identifier)
+    with open(script_path, 'w') as f:
+        f.write(script)
+    cmd = ['bash', script_path]
+    output = subprocess.check_output(cmd)
+    return output
 
 
 def print_line(character='–'):
@@ -46,66 +102,33 @@ def print_line(character='–'):
         print(character, end='')
 
 
+def read_configuration(config_dir):
+    """Read the configuration an return the result as dict
+
+    Merge all yaml files of the given directory together and return the result
+    """
+    try:
+        return yamlreader.yaml_load(config_dir, {})
+    except YamlReaderError:
+        message = 'ERROR: Could not find configuration directory: {0}'
+        print(message.format(config_dir))
+        sys.exit(1)
+
+
 def main():
     """Executed, when script is called directly"""
     arguments = docopt(__doc__)
     config_dir = arguments['--config']
-    try:
-        backup_config = yamlreader.yaml_load(config_dir, {})
-    except KeyError:
-        print('ERROR: Could not find configuration')
-        sys.exit(1)
-    backups = backup_config.keys()
+    backup_config = read_configuration(config_dir)
     if arguments['list']:
         print('Available backups for this instance')
         print_line()
-    for entry in backups:
-        if arguments['restore'] and arguments['<name>']:
-            if arguments['<name>'] != entry:
+    for name, config in backup_config.items():
+        if arguments['restore'] or arguments['create']:
+            # Just process the backup with the given name
+            if arguments['<name>'] and arguments['<name>'] != name:
                 continue
-        config = backup_config[entry]
-        upload_protocol = config['target'].split('://')[0]
-        workdir = tempfile.mkdtemp(prefix='backuptool-')
-        if upload_protocol == 's3':
-            from backuptool.s3 import S3Backup
-            my_backup = S3Backup(entry, config=config, workdir=workdir)
-        elif upload_protocol == 'ftp':
-            from backuptool.ftp import FTPBackup
-            my_backup = FTPBackup(entry, config=config, workdir=workdir)
-        elif upload_protocol == 'sftp':
-            from backuptool.sftp import SFTPBackup
-            my_backup = SFTPBackup(entry, config=config, workdir=workdir)
-        elif upload_protocol == 'file':
-            from backuptool.file import FileBackup
-            my_backup = FileBackup(entry, config=config, workdir=workdir)
-        else:
-            message = "Target type '{0}' is not supported"
-            message = message.format(upload_protocol)
-            print(message)
-        try:
-            if arguments['create']:
-                my_backup.create()
-            elif arguments['restore']:
-                my_backup.restore()
-                # Be sure the imported backup files have correct permissions,
-                # services are restarted to adapt a possible new config, ...
-                if 'puppet-manifest' in config:
-                    if isinstance(config['puppet-manifest'], list):
-                        for manifest in config['puppet-manifest']:
-                            run_local_puppet(manifest)
-                    elif isinstance(config['puppet-manifest'], str):
-                        run_local_puppet(config['puppet-manifest'])
-            elif arguments['rotate']:
-                my_backup.rotate()
-            elif arguments['delete']:
-                my_backup.delete(arguments['<name>'])
-            elif arguments['list']:
-                my_backup.list()
-        except (CallingUserError, DecryptionError) as error:
-            print(error)
-            sys.exit(1)
-        finally:
-            shutil.rmtree(workdir)
+        perform_backup(name, config, arguments)
 
 
 if __name__ == '__main__':
