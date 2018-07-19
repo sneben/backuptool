@@ -223,7 +223,7 @@ processes. E.g. for mounting things before **create** a backup:
     pre-create: docker-machine mount docker.domain.com:/path/to/mount ./mnt/mybackup
 
 A multiline script could be given by using the yaml literal syntax. If a script
-should be run after the backup **create** process is finished, use this:
+should be run after e.g. the backup **create** process is finished, use this:
 
 .. code-block:: yaml
 
@@ -231,8 +231,13 @@ should be run after the backup **create** process is finished, use this:
         docker-machine mount -u docker.domain.com:/path/to/mount ./mnt/mybackup
         touch /tmp/backup_indicator
 
-To do the same for the **restore** process, use **restore** instead of
-**create** on the section name.
+The naming is  pretty self-explanatory, so to do the same for the **restore**
+process, use **restore** instead of **create** on the section name.
+
+Further there is a more general variant called **pre-script** and
+**post-script**, which is executed on both actions, create or restore. Where
+**pre-script** always run first and **post-script** always run last, if you
+define other pre or post scripting options.
 
 Example configuration
 ---------------------

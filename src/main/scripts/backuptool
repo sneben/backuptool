@@ -59,13 +59,17 @@ def perform_backup(name, config, arguments):
         return
     try:
         if arguments['create']:
+            run_script('pre-script', workdir, config.get('pre-script'))
             run_script('pre-create', workdir, config.get('pre-create'))
             my_backup.create()
             run_script('post-create', workdir, config.get('post-create'))
+            run_script('post-script', workdir, config.get('post-script'))
         elif arguments['restore']:
+            run_script('pre-script', workdir, config.get('pre-script'))
             run_script('pre-restore', workdir, config.get('pre-restore'))
             my_backup.restore()
             run_script('post-restore', workdir, config.get('post-restore'))
+            run_script('post-script', workdir, config.get('post-script'))
         elif arguments['rotate']:
             my_backup.rotate()
         elif arguments['delete']:
@@ -76,7 +80,8 @@ def perform_backup(name, config, arguments):
         print(error)
         sys.exit(1)
     finally:
-        shutil.rmtree(workdir)
+        if not arguments['--debug']:
+            shutil.rmtree(workdir)
 
 
 def run_script(identifier, workdir, script):
