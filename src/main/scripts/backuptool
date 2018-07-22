@@ -32,12 +32,18 @@ from backuptool import (
     CallingUserError,
     DecryptionError
 )
+from backuptool import BashColor
 
 from yamlreader import YamlReaderError
 
 
+class ScriptExecutionError(Exception):
+    pass
+
+
 def perform_backup(name, config, arguments):
     """Run the given backup"""
+    debug = arguments['--debug']
     upload_protocol = config['target'].split('://')[0]
     workdir = tempfile.mkdtemp(prefix='backuptool-')
     if upload_protocol == 's3':
@@ -59,28 +65,48 @@ def perform_backup(name, config, arguments):
         return
     try:
         if arguments['create']:
-            run_script('pre-script', workdir, config.get('pre-script'))
-            run_script('pre-create', workdir, config.get('pre-create'))
+            run_script('pre-script',
+                       workdir,
+                       config.get('pre-script'))
+            run_script('pre-create',
+                       workdir,
+                       config.get('pre-create'))
             my_backup.create()
-            run_script('post-create', workdir, config.get('post-create'))
-            run_script('post-script', workdir, config.get('post-script'))
+            run_script('post-create',
+                       workdir,
+                       config.get('post-create'))
+            run_script('post-script',
+                       workdir,
+                       config.get('post-script'))
         elif arguments['restore']:
-            run_script('pre-script', workdir, config.get('pre-script'))
-            run_script('pre-restore', workdir, config.get('pre-restore'))
+            run_script('pre-script',
+                       workdir,
+                       config.get('pre-script'))
+            run_script('pre-restore',
+                       workdir,
+                       config.get('pre-restore'))
             my_backup.restore()
-            run_script('post-restore', workdir, config.get('post-restore'))
-            run_script('post-script', workdir, config.get('post-script'))
+            run_script('post-restore',
+                       workdir,
+                       config.get('post-restore'))
+            run_script('post-script',
+                       workdir,
+                       config.get('post-script'))
         elif arguments['rotate']:
             my_backup.rotate()
         elif arguments['delete']:
             my_backup.delete(arguments['<name>'])
         elif arguments['list']:
             my_backup.list()
-    except (CallingUserError, DecryptionError) as error:
+    except CallingUserError as error:
         print(error)
         sys.exit(1)
+    except (ScriptExecutionError, DecryptionError) as error:
+        # Just skipt to the next backup, if on is available
+        print_error(error)
+        return
     finally:
-        if not arguments['--debug']:
+        if not debug:
             shutil.rmtree(workdir)
 
 
@@ -94,10 +120,24 @@ def run_script(identifier, workdir, script):
         return
     script_path = '{0}/{1}.sh'.format(workdir, identifier)
     with open(script_path, 'w') as f:
+        # Alway give a error back, else a exception could
+        # not be catched during the check_output execution
+        f.write('set -e\n')
         f.write(script)
     cmd = ['bash', script_path]
-    output = subprocess.check_output(cmd)
+    try:
+        output = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
+    except subprocess.CalledProcessError as e:
+        raise ScriptExecutionError('{0} has errors:\n{1}'.format(identifier,
+                                                                 e.output))
     return output
+
+
+def print_error(message):
+    """Print out a standartized error message"""
+    print(
+        '\n{0}[ERROR]{1}[{2}]{3} {4}'.format(BashColor.RED, BashColor.DARKCYAN,
+                                             name, BashColor.END, message))
 
 
 def print_line(character='–'):
