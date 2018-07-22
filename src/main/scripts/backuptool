@@ -103,7 +103,7 @@ def perform_backup(name, config, arguments):
         sys.exit(1)
     except (ScriptExecutionError, DecryptionError) as error:
         # Just skipt to the next backup, if on is available
-        print_error(error)
+        print_error(name, error)
         return
     finally:
         if not debug:
@@ -133,7 +133,7 @@ def run_script(identifier, workdir, script):
     return output
 
 
-def print_error(message):
+def print_error(name, message):
     """Print out a standartized error message"""
     print(
         '\n{0}[ERROR]{1}[{2}]{3} {4}'.format(BashColor.RED, BashColor.DARKCYAN,
