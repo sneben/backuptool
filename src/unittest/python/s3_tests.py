@@ -56,7 +56,7 @@
 #        backup.rotate()
 #
 #    @mock_s3
-#    @patch('__builtin__.print')
+#    @patch('builtins.print')
 #    def test_should_list_backup_files(self, mock_print):
 #        connection = boto.connect_s3()
 #        bucket = connection.create_bucket('backup-test-bucket')

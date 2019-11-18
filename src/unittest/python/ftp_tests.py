@@ -38,7 +38,6 @@ class FTPBackupTests(TestCase):
                                 config=self.ftp_based_config,
                                 workdir=self.backup_test_workdir)
 
-
     def tearDown(self):
         shutil.rmtree(self.workdir)
 
@@ -50,12 +49,13 @@ class FTPBackupTests(TestCase):
     def test_should_rotate_backup_files(self):
         self.backup.rotate()
 
-    @patch("__builtin__.print")
+    @patch("builtins.print")
     def test_should_list_backup_files(self, mock_print):
         entry = ('-rw-r--r--   1 user   group   826948694 Jul 25 04:27 ' +
                  'backup-listtest-20150725062606.tar.gz')
         self.backup.existing_backup_listings = [entry]
-        self.backup.existing_backup_files = ['backup-listtest-20150725062606.tar.gz']
+        self.backup.existing_backup_files = \
+            ['backup-listtest-20150725062606.tar.gz']
         self.backup.list()
 
     def test_should_download_backup_files(self):

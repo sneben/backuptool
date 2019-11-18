@@ -54,7 +54,7 @@ class SFTPBackupTests(TestCase):
     def test_should_rotate_backup_files(self):
         self.backup.rotate()
 
-    @patch("__builtin__.print")
+    @patch("builtins.print")
     def test_should_list_backup_files(self, mock_print):
         self.backup.list()
 
