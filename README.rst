@@ -220,7 +220,7 @@ processes. E.g. for mounting things before **create** a backup:
 
 .. code-block:: yaml
 
-    pre-create: docker-machine mount docker.domain.com:/path/to/mount ./mnt/mybackup
+    pre-create: docker-machine mount docker.domain.com:/path/to/mount /mnt/mybackup
 
 A multiline script could be given by using the yaml literal syntax. If a script
 should be run after e.g. the backup **create** process is finished, use this:
@@ -228,7 +228,7 @@ should be run after e.g. the backup **create** process is finished, use this:
 .. code-block:: yaml
 
     post-create: |
-        docker-machine mount -u docker.domain.com:/path/to/mount ./mnt/mybackup
+        docker-machine mount -u docker.domain.com:/path/to/mount /mnt/mybackup
         touch /tmp/backup_indicator
 
 The naming is  pretty self-explanatory, so to do the same for the **restore**
@@ -260,7 +260,7 @@ Example configuration with all available features:
             - mydatabase
         mysql_user: backupuser
         mysql_password: password123
-        pre-create: docker-machine mount docker.domain.com:/path/to/mount ./mnt/mybackup
+        pre-create: docker-machine mount docker.domain.com:/path/to/mount /mnt/mybackup
         post-create: |
-            docker-machine mount -u docker.domain.com:/path/to/mount ./mnt/mybackup
+            docker-machine mount -u docker.domain.com:/path/to/mount /mnt/mybackup
             touch /tmp/backup_indicator
