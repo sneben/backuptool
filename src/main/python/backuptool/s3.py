@@ -32,7 +32,7 @@ class S3Backup(Backup):
         objects = self.connection.list_objects(Bucket=self.bucket_name)
         contents = objects['Contents']
         self.s3_keys = \
-            [d for d in contents if d['Key'].startswith('backup-auth')]
+            [d for d in contents if d['Key'].startswith(self.filename_prefix)]
         self.s3_keys.reverse()
 
     def upload(self):
