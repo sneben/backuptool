@@ -16,14 +16,14 @@ class SFTPBackup(Backup):
         self.existing_backup_files = []
         self.transport = None
         self.sftp = None
-        self.connect()
+        self._connect()
         self.set_existing_backups()
 
     def __del__(self):
         self.sftp.close()
         self.transport.close()
 
-    def connect(self):
+    def _connect(self):
         """Connect against the configured ftp server"""
         match = re.search(r'sftp://([^:/]+):*([^/]*)', self.config['target'])
         host = match.group(1)

@@ -104,6 +104,7 @@ def perform_backup(name, config, arguments):
         print_error(name, error)
         return
     finally:
+        del my_backup
         if not debug:
             shutil.rmtree(workdir)
 
