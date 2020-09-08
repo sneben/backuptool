@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 """Test suite for testing the basic functionality of backuptool"""
